@@ -9,6 +9,10 @@
             android:id="@+id/nav_menu"
             android:icon="@drawable/ic_launcher_foreground"
             android:title="@string/menu_menu" />
+        <item
+            android:id="@+id/nav_calendario"
+            android:icon="@android:drawable/ic_menu_my_calendar"
+            android:title="@string/menu_calendario" />
 
 
     </group>
