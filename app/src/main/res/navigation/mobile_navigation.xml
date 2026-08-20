@@ -22,6 +22,11 @@
         android:name="com.example.gymnote.ui.menu.TreinosFragment"
         android:label="Treinos"
         tools:layout="@layout/fragment_treinos" />
+    <fragment
+        android:id="@+id/nav_exercicio"
+        android:name="com.example.gymnote.ui.menu.ExercicioFragment"
+        android:label="Exercício"
+        tools:layout="@layout/fragment_exercicio" />
 
     <fragment
         android:id="@+id/nav_settings"

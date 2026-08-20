@@ -11,6 +11,7 @@
     <string name="menu_menu">Menu</string>
     <string name="menu_calendario">Calendario</string>
     <string name="menu_treinos">Treinos</string>
+    <string name="menu_exercicio">Adicionar Exercícios</string>
 
     <string name="menu_reflow">Reflow</string>
     <string name="menu_slideshow">Slideshow</string>

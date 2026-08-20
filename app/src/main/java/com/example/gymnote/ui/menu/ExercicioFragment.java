@@ -1,66 +1,67 @@
 package com.example.gymnote.ui.menu;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.example.gymnote.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ExercicioFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ExercicioFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    Spinner spMusculo;
+    EditText exercicio;
+    Button btSalvarExercicio;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ExercicioFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ExercicioFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ExercicioFragment newInstance(String param1, String param2) {
-        ExercicioFragment fragment = new ExercicioFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_exercicio, container, false);
+        View V = inflater.inflate(
+                R.layout.fragment_exercicio,
+                container,
+                false
+        );
+
+        spMusculo = V.findViewById(R.id.spMusculo);
+        exercicio = V.findViewById(R.id.exercicio);
+        btSalvarExercicio = V.findViewById(R.id.btSalvarExercicio);
+
+        String[] musculos = {
+                "Peito",
+                "Costas",
+                "Ombros",
+                "Bíceps",
+                "Tríceps",
+                "Quadríceps",
+                "Posterior",
+                "Glúteos",
+                "Panturrilha",
+                "Abdômen"
+        };
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                musculos
+        );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spMusculo.setAdapter(adapter);
+
+        return V;
     }
 }
