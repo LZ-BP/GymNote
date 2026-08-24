@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,34 +9,32 @@
     tools:context=".ui.menu.CalendarioFragment">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Calendário de Treinos"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp" />
+        android:gravity="center"
+        android:text="CALENDÁRIO"
+        android:textSize="26sp"
+        android:textStyle="bold" />
 
     <CalendarView
         android:id="@+id/calendario"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
 
     <TextView
-        android:id="@+id/dataSelecionada"
+        android:id="@+id/txtDataSelecionada"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Data selecionada: "
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:layout_marginTop="20dp"
         android:gravity="center"
-        android:layout_marginTop="25dp" />
+        android:textSize="18sp" />
 
     <Button
-        android:id="@+id/btTreino"
+        android:id="@+id/btVerTreinos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ver treino do dia"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:text="VER TREINOS" />
 
 </LinearLayout>

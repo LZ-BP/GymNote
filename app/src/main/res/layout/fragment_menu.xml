@@ -1,62 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
     tools:context=".ui.menu.MenuFragment">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:gravity="center"
+        android:text="GYMNOTE"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="GYMNOTE"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/txtHoje"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/txtBemVindo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="Bem-vindo!"
-            android:textSize="18sp" />
+    <TextView
+        android:id="@+id/txtTreinoHoje"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="TREINO DE HOJE"
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btCalendario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="CALENDÁRIO" />
+    <Button
+        android:id="@+id/btVerTreinoHoje"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="INICIAR TREINO DE HOJE" />
 
-        <Button
-            android:id="@+id/btTreinos"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="MEUS TREINOS" />
+    <Button
+        android:id="@+id/btExercicios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="EXERCÍCIOS" />
 
-        <Button
-            android:id="@+id/btAlimentacao"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="ALIMENTAÇÃO" />
+    <Button
+        android:id="@+id/btHistorico"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="HISTÓRICO" />
 
-        <Button
-            android:id="@+id/btHistorico"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="HISTÓRICO" />
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

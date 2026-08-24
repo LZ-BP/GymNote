@@ -11,18 +11,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.gymnote.R;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class CalendarioFragment extends Fragment {
 
     CalendarView calendario;
-    TextView dataSelecionada;
-    Button btTreino;
+    TextView txtDataSelecionada;
+    Button btVerTreinos;
 
-    String data;
+    String dataSelecionada;
 
     @Nullable
     @Override
@@ -30,30 +33,46 @@ public class CalendarioFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View V = inflater.inflate(R.layout.fragment_calendario, container, false);
+        View V = inflater.inflate(
+                R.layout.fragment_calendario,
+                container,
+                false
+        );
 
         calendario = V.findViewById(R.id.calendario);
-        dataSelecionada = V.findViewById(R.id.dataSelecionada);
-        btTreino = V.findViewById(R.id.btTreino);
+        txtDataSelecionada = V.findViewById(R.id.txtDataSelecionada);
+        btVerTreinos = V.findViewById(R.id.btVerTreinos);
+
+        dataSelecionada = new SimpleDateFormat(
+                "dd/MM/yyyy",
+                Locale.getDefault()
+        ).format(new Date());
+
+        txtDataSelecionada.setText(dataSelecionada);
 
         calendario.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
 
-            data = dayOfMonth + "/" + (month + 1) + "/" + year;
+            dataSelecionada = String.format(
+                    Locale.getDefault(),
+                    "%02d/%02d/%04d",
+                    dayOfMonth,
+                    month + 1,
+                    year
+            );
 
-            dataSelecionada.setText("Data selecionada: " + data);
+            txtDataSelecionada.setText(dataSelecionada);
         });
 
-        btTreino.setOnClickListener(v -> {
-
-            if (data == null) {
-                return;
-            }
+        btVerTreinos.setOnClickListener(view -> {
 
             Bundle dados = new Bundle();
-            dados.putString("dataTreino", data);
+            dados.putString("data", dataSelecionada);
 
-            Navigation.findNavController(v)
-                    .navigate(R.id.nav_treinos, dados);
+            Navigation.findNavController(view)
+                    .navigate(
+                            R.id.nav_treinos,
+                            dados
+                    );
         });
 
         return V;

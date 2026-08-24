@@ -11,41 +11,52 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TREINO DO DIA"
+        android:gravity="center"
+        android:text="TREINOS"
         android:textSize="26sp"
-        android:textStyle="bold"
-        android:gravity="center" />
-
-    <TextView
-        android:id="@+id/txtDataTreino"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="17/08/2026"
-        android:textSize="18sp"
-        android:gravity="center" />
-
-    <TextView
-        android:id="@+id/txtNomeTreino"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Peito e Bíceps"
-        android:textSize="22sp"
         android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btAdicionarExercicio"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="ADICIONAR EXERCÍCIO" />
+        android:layout_marginTop="25dp"
+        android:text="Selecione o treino"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <ListView
-        android:id="@+id/listaExercicios"
+    <Spinner
+        android:id="@+id/spTreino"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:id="@+id/tabelaExercicios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stretchColumns="1,2,3">
+
+            </TableLayout>
+
+        </HorizontalScrollView>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btSalvarTreino"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:layout_weight="1" />
+        android:text="SALVAR TREINO" />
 
 </LinearLayout>

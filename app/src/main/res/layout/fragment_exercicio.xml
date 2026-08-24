@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="ADICIONAR EXERCÍCIO"
+            android:text="EXERCÍCIOS"
             android:textSize="26sp"
             android:textStyle="bold" />
 
@@ -24,38 +24,54 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:text="Músculo"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/spMusculo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:text="Nome do exercício"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/exercicio"
+            android:id="@+id/edtNomeExercicio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ex: Bíceps Scott"
-            android:inputType="text"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:hint="Ex: Supino reto"
+            android:inputType="text" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Grupo muscular"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/edtMusculo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Ex: Peito"
+            android:inputType="text" />
 
         <Button
             android:id="@+id/btSalvarExercicio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="20dp"
             android:text="SALVAR EXERCÍCIO" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="EXERCÍCIOS CADASTRADOS"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ListView
+            android:id="@+id/listaExercicios"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 

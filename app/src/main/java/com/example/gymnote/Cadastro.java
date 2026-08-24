@@ -1,5 +1,6 @@
 package com.example.gymnote;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -50,7 +51,6 @@ public class Cadastro extends AppCompatActivity {
                 finish();
             }
         });
-
         btCadastra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,20 +63,32 @@ public class Cadastro extends AppCompatActivity {
                     stmt.setString(3, senhaCadastra.getText().toString());
                     stmt.executeUpdate();
 
+                    // Fecha a conexão com o banco imediatamente após a execução
+                    stmt.close();
+                    con.close();
+
                     AlertDialog.Builder mensagem = new AlertDialog.Builder(Cadastro.this);
                     mensagem.setTitle("Cadastro");
                     mensagem.setMessage("Usuário cadastrado com sucesso!");
-                    mensagem.setPositiveButton("OK", null);
+
+                    // Passa a ação a ser executada ao clicar no botão "OK"
+                    mensagem.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            usuarioCadastra.setText("");
+                            senhaCadastra.setText("");
+                            emailCadastra.setText("");
+
+                            Intent login = new Intent(Cadastro.this, Login.class);
+                            startActivity(login);
+                            finish();
+                        }
+                    });
+
                     mensagem.show();
 
-                    usuarioCadastra.setText("");
-                    senhaCadastra.setText("");
-                    emailCadastra.setText("");
-
-                    stmt.close();
-                    con.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
