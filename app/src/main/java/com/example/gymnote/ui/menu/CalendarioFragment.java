@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -30,18 +31,13 @@ public class CalendarioFragment extends Fragment {
 
     CalendarView calendario;
     TextView txtDataSelecionada;
+    TextView txtTreinoSelecionado;
 
     Spinner spinnerTreinos;
+    Button btSalvarTreino;
 
-    Button btSalvarCalendario;
-
-    String dataSelecionada;
-
-    ArrayList<String> dadosTreinos =
-            new ArrayList<>();
-
-    ArrayList<Integer> idsTreinos =
-            new ArrayList<>();
+    ArrayList<String> dadosTreinos = new ArrayList<>();
+    ArrayList<Integer> idsTreinos = new ArrayList<>();
 
     ArrayAdapter<String> adaptadorTreinos;
 
@@ -50,6 +46,7 @@ public class CalendarioFragment extends Fragment {
     ResultSet rs;
 
     int idUsuario = 1;
+    String dataSelecionada;
 
     @Nullable
     @Override
@@ -64,28 +61,18 @@ public class CalendarioFragment extends Fragment {
                 false
         );
 
-        calendario =
-                V.findViewById(R.id.calendario);
+        calendario = V.findViewById(R.id.calendario);
+        txtDataSelecionada = V.findViewById(R.id.txtDataSelecionada);
+        txtTreinoSelecionado = V.findViewById(R.id.txtTreinoSelecionado);
+        spinnerTreinos = V.findViewById(R.id.spinnerTreinos);
+        btSalvarTreino = V.findViewById(R.id.btSalvarTreino);
 
-        txtDataSelecionada =
-                V.findViewById(R.id.txtDataSelecionada);
+        dataSelecionada = new SimpleDateFormat(
+                "yyyy-MM-dd",
+                Locale.getDefault()
+        ).format(new Date());
 
-        spinnerTreinos =
-                V.findViewById(R.id.spinnerTreinos);
-
-        btSalvarCalendario =
-                V.findViewById(R.id.btSalvarCalendario);
-
-        dataSelecionada =
-                new SimpleDateFormat(
-                        "dd/MM/yyyy",
-                        Locale.getDefault()
-                ).format(new Date());
-
-        txtDataSelecionada.setText(
-                dataSelecionada
-        );
-
+        atualizarDataTexto();
         carregarTreinos();
 
         calendario.setOnDateChangeListener(
@@ -93,23 +80,75 @@ public class CalendarioFragment extends Fragment {
 
                     dataSelecionada = String.format(
                             Locale.getDefault(),
-                            "%02d/%02d/%04d",
-                            dayOfMonth,
+                            "%04d-%02d-%02d",
+                            year,
                             month + 1,
-                            year
+                            dayOfMonth
                     );
 
-                    txtDataSelecionada.setText(
-                            dataSelecionada
-                    );
+                    atualizarDataTexto();
+                    carregarTreinoDoDia();
                 }
         );
 
-        btSalvarCalendario.setOnClickListener(
+        spinnerTreinos.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+
+                        if (!dadosTreinos.isEmpty()) {
+
+                            txtTreinoSelecionado.setText(
+                                    dadosTreinos.get(position)
+                            );
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(
+                            AdapterView<?> parent) {
+                    }
+                }
+        );
+
+        btSalvarTreino.setOnClickListener(
                 view -> salvarTreinoNoDia()
         );
 
         return V;
+    }
+
+    private void atualizarDataTexto() {
+
+        try {
+
+            SimpleDateFormat banco =
+                    new SimpleDateFormat(
+                            "yyyy-MM-dd",
+                            Locale.getDefault()
+                    );
+
+            SimpleDateFormat tela =
+                    new SimpleDateFormat(
+                            "dd/MM/yyyy",
+                            Locale.getDefault()
+                    );
+
+            Date data = banco.parse(dataSelecionada);
+
+            txtDataSelecionada.setText(
+                    tela.format(data)
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
     }
 
     private void carregarTreinos() {
@@ -128,11 +167,7 @@ public class CalendarioFragment extends Fragment {
                             "ORDER BY nome_treino";
 
             stmt = con.prepareStatement(sql);
-
-            stmt.setInt(
-                    1,
-                    idUsuario
-            );
+            stmt.setInt(1, idUsuario);
 
             rs = stmt.executeQuery();
 
@@ -162,11 +197,89 @@ public class CalendarioFragment extends Fragment {
                     adaptadorTreinos
             );
 
+            carregarTreinoDoDia();
+
         } catch (Exception e) {
 
             Toast.makeText(
                     requireContext(),
                     "Erro ao carregar treinos",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            e.printStackTrace();
+
+        } finally {
+
+            fecharConexao();
+        }
+    }
+
+    private void carregarTreinoDoDia() {
+
+        if (dadosTreinos.isEmpty()) {
+
+            txtTreinoSelecionado.setText(
+                    "Nenhum treino cadastrado"
+            );
+
+            return;
+        }
+
+        try {
+
+            con = ConexaoMySQL.conectar();
+
+            String sql =
+                    "SELECT ct.id_treino, t.nome_treino " +
+                            "FROM calendario_treino ct " +
+                            "INNER JOIN treino t " +
+                            "ON t.id_treino = ct.id_treino " +
+                            "WHERE ct.id_usuario = ? " +
+                            "AND ct.data_treino = ?";
+
+            stmt = con.prepareStatement(sql);
+
+            stmt.setInt(1, idUsuario);
+            stmt.setString(2, dataSelecionada);
+
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                int idTreino =
+                        rs.getInt("id_treino");
+
+                String nomeTreino =
+                        rs.getString("nome_treino");
+
+                txtTreinoSelecionado.setText(
+                        nomeTreino
+                );
+
+                for (int i = 0;
+                     i < idsTreinos.size();
+                     i++) {
+
+                    if (idsTreinos.get(i) == idTreino) {
+
+                        spinnerTreinos.setSelection(i);
+                        break;
+                    }
+                }
+
+            } else {
+
+                txtTreinoSelecionado.setText(
+                        "Nenhum treino neste dia"
+                );
+            }
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    requireContext(),
+                    "Erro ao consultar treino",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -184,7 +297,7 @@ public class CalendarioFragment extends Fragment {
 
             Toast.makeText(
                     requireContext(),
-                    "Nenhum treino cadastrado",
+                    "Cadastre um treino primeiro",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -193,6 +306,10 @@ public class CalendarioFragment extends Fragment {
 
         int posicao =
                 spinnerTreinos.getSelectedItemPosition();
+
+        if (posicao < 0) {
+            return;
+        }
 
         int idTreino =
                 idsTreinos.get(posicao);
@@ -204,34 +321,25 @@ public class CalendarioFragment extends Fragment {
             String sql =
                     "INSERT INTO calendario_treino " +
                             "(id_usuario, id_treino, data_treino) " +
-                            "VALUES (?, ?, STR_TO_DATE(?, '%d/%m/%Y')) " +
+                            "VALUES (?, ?, ?) " +
                             "ON DUPLICATE KEY UPDATE " +
                             "id_treino = VALUES(id_treino)";
 
             stmt = con.prepareStatement(sql);
 
-            stmt.setInt(
-                    1,
-                    idUsuario
-            );
-
-            stmt.setInt(
-                    2,
-                    idTreino
-            );
-
-            stmt.setString(
-                    3,
-                    dataSelecionada
-            );
+            stmt.setInt(1, idUsuario);
+            stmt.setInt(2, idTreino);
+            stmt.setString(3, dataSelecionada);
 
             stmt.executeUpdate();
 
             Toast.makeText(
                     requireContext(),
-                    "Treino salvo no dia!",
+                    "Treino salvo no calendário!",
                     Toast.LENGTH_SHORT
             ).show();
+
+            carregarTreinoDoDia();
 
         } catch (Exception e) {
 

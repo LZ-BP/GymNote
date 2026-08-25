@@ -28,24 +28,27 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:gravity="center"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/txtTreinoSelecionado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Escolha o treino"
-        android:textSize="16sp"
+        android:gravity="center"
+        android:text="Nenhum treino selecionado"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <Spinner
         android:id="@+id/spinnerTreinos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="15dp" />
 
     <Button
-        android:id="@+id/btSalvarCalendario"
+        android:id="@+id/btSalvarTreino"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"

@@ -33,33 +33,13 @@ import java.util.Locale;
 public class TreinosFragment extends Fragment {
 
     ListView listaTreinos;
-
-    TextView txtNomeTreino;
-
     TableLayout tabelaExercicios;
 
+    TextView txtNomeTreino;
     Button btFinalizarTreino;
 
-    ArrayList<String> dadosTreinos =
-            new ArrayList<>();
-
-    ArrayList<Integer> idsTreinos =
-            new ArrayList<>();
-
-    ArrayList<Integer> idsExercicios =
-            new ArrayList<>();
-
-    ArrayList<String> nomesExercicios =
-            new ArrayList<>();
-
-    ArrayList<EditText> camposCarga =
-            new ArrayList<>();
-
-    ArrayList<EditText> camposSeries =
-            new ArrayList<>();
-
-    ArrayList<EditText> camposRepeticoes =
-            new ArrayList<>();
+    ArrayList<String> dadosTreinos = new ArrayList<>();
+    ArrayList<Integer> idsTreinos = new ArrayList<>();
 
     ArrayAdapter<String> adaptadorTreinos;
 
@@ -69,8 +49,6 @@ public class TreinosFragment extends Fragment {
 
     int idUsuario = 1;
     int idTreinoSelecionado = -1;
-
-    String nomeTreinoSelecionado = "";
 
     @Nullable
     @Override
@@ -85,17 +63,10 @@ public class TreinosFragment extends Fragment {
                 false
         );
 
-        listaTreinos =
-                V.findViewById(R.id.listaTreinos);
-
-        txtNomeTreino =
-                V.findViewById(R.id.txtNomeTreino);
-
-        tabelaExercicios =
-                V.findViewById(R.id.tabelaExercicios);
-
-        btFinalizarTreino =
-                V.findViewById(R.id.btFinalizarTreino);
+        listaTreinos = V.findViewById(R.id.listaTreinos);
+        tabelaExercicios = V.findViewById(R.id.tabelaExercicios);
+        txtNomeTreino = V.findViewById(R.id.txtNomeTreino);
+        btFinalizarTreino = V.findViewById(R.id.btFinalizarTreino);
 
         carregarTreinos();
 
@@ -105,14 +76,11 @@ public class TreinosFragment extends Fragment {
                     idTreinoSelecionado =
                             idsTreinos.get(position);
 
-                    nomeTreinoSelecionado =
-                            dadosTreinos.get(position);
-
                     txtNomeTreino.setText(
-                            nomeTreinoSelecionado
+                            dadosTreinos.get(position)
                     );
 
-                    carregarExercicios();
+                    carregarExerciciosDoTreino();
                 }
         );
 
@@ -121,6 +89,15 @@ public class TreinosFragment extends Fragment {
         );
 
         return V;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (listaTreinos != null) {
+            carregarTreinos();
+        }
     }
 
     private void carregarTreinos() {
@@ -139,11 +116,7 @@ public class TreinosFragment extends Fragment {
                             "ORDER BY nome_treino";
 
             stmt = con.prepareStatement(sql);
-
-            stmt.setInt(
-                    1,
-                    idUsuario
-            );
+            stmt.setInt(1, idUsuario);
 
             rs = stmt.executeQuery();
 
@@ -185,18 +158,15 @@ public class TreinosFragment extends Fragment {
         }
     }
 
-    private void carregarExercicios() {
+    private void carregarExerciciosDoTreino() {
 
         tabelaExercicios.removeAllViews();
 
-        idsExercicios.clear();
-        nomesExercicios.clear();
-
-        camposCarga.clear();
-        camposSeries.clear();
-        camposRepeticoes.clear();
-
         adicionarCabecalho();
+
+        if (idTreinoSelecionado == -1) {
+            return;
+        }
 
         try {
 
@@ -211,27 +181,21 @@ public class TreinosFragment extends Fragment {
                             "ORDER BY te.ordem";
 
             stmt = con.prepareStatement(sql);
-
-            stmt.setInt(
-                    1,
-                    idTreinoSelecionado
-            );
+            stmt.setInt(1, idTreinoSelecionado);
 
             rs = stmt.executeQuery();
 
+            int ordem = 1;
+
             while (rs.next()) {
 
-                idsExercicios.add(
-                        rs.getInt("id_exercicio")
-                );
-
-                nomesExercicios.add(
-                        rs.getString("nome")
-                );
-
                 adicionarLinha(
-                        rs.getString("nome")
+                        rs.getInt("id_exercicio"),
+                        rs.getString("nome"),
+                        ordem
                 );
+
+                ordem++;
             }
 
         } catch (Exception e) {
@@ -252,8 +216,9 @@ public class TreinosFragment extends Fragment {
 
     private void adicionarCabecalho() {
 
-        TableRow linha =
-                new TableRow(requireContext());
+        TableRow linha = new TableRow(
+                requireContext()
+        );
 
         linha.addView(
                 criarTexto("Exercício")
@@ -274,22 +239,28 @@ public class TreinosFragment extends Fragment {
         tabelaExercicios.addView(linha);
     }
 
-    private void adicionarLinha(String nome) {
+    private void adicionarLinha(
+            int idExercicio,
+            String nome,
+            int ordem) {
 
-        TableRow linha =
-                new TableRow(requireContext());
+        TableRow linha = new TableRow(
+                requireContext()
+        );
 
         TextView exercicio =
                 criarTexto(nome);
 
         EditText carga =
-                criarCampo("kg");
+                criarCampo("kg", true);
 
         EditText series =
-                criarCampo("Séries");
+                criarCampo("Séries", false);
 
         EditText repeticoes =
-                criarCampo("Reps");
+                criarCampo("Reps", false);
+
+        linha.setTag(idExercicio);
 
         linha.addView(exercicio);
         linha.addView(carga);
@@ -297,26 +268,11 @@ public class TreinosFragment extends Fragment {
         linha.addView(repeticoes);
 
         tabelaExercicios.addView(linha);
-
-        camposCarga.add(carga);
-        camposSeries.add(series);
-        camposRepeticoes.add(repeticoes);
     }
 
-    private TextView criarTexto(String texto) {
-
-        TextView campo =
-                new TextView(requireContext());
-
-        campo.setText(texto);
-        campo.setTextSize(16);
-        campo.setGravity(Gravity.CENTER);
-        campo.setPadding(15, 15, 15, 15);
-
-        return campo;
-    }
-
-    private EditText criarCampo(String hint) {
+    private EditText criarCampo(
+            String hint,
+            boolean decimal) {
 
         EditText campo =
                 new EditText(requireContext());
@@ -324,14 +280,48 @@ public class TreinosFragment extends Fragment {
         campo.setHint(hint);
         campo.setTextSize(16);
         campo.setGravity(Gravity.CENTER);
-        campo.setPadding(10, 10, 10, 10);
 
-        campo.setInputType(
-                InputType.TYPE_CLASS_NUMBER |
-                        InputType.TYPE_NUMBER_FLAG_DECIMAL
+        campo.setPadding(
+                10,
+                10,
+                10,
+                10
         );
 
+        if (decimal) {
+
+            campo.setInputType(
+                    InputType.TYPE_CLASS_NUMBER |
+                            InputType.TYPE_NUMBER_FLAG_DECIMAL
+            );
+
+        } else {
+
+            campo.setInputType(
+                    InputType.TYPE_CLASS_NUMBER
+            );
+        }
+
         return campo;
+    }
+
+    private TextView criarTexto(String texto) {
+
+        TextView textView =
+                new TextView(requireContext());
+
+        textView.setText(texto);
+        textView.setTextSize(16);
+        textView.setGravity(Gravity.CENTER);
+
+        textView.setPadding(
+                15,
+                15,
+                15,
+                15
+        );
+
+        return textView;
     }
 
     private void finalizarTreino() {
@@ -347,7 +337,7 @@ public class TreinosFragment extends Fragment {
             return;
         }
 
-        if (idsExercicios.isEmpty()) {
+        if (tabelaExercicios.getChildCount() <= 1) {
 
             Toast.makeText(
                     requireContext(),
@@ -362,11 +352,20 @@ public class TreinosFragment extends Fragment {
 
             con = ConexaoMySQL.conectar();
 
+            String nomeTreino =
+                    txtNomeTreino.getText()
+                            .toString()
+                            .trim();
+
             String data =
                     new SimpleDateFormat(
                             "yyyy-MM-dd",
                             Locale.getDefault()
                     ).format(new Date());
+
+            /*
+             * Cria o treino realizado.
+             */
 
             String sql =
                     "INSERT INTO treino_realizado " +
@@ -375,87 +374,83 @@ public class TreinosFragment extends Fragment {
 
             stmt = con.prepareStatement(
                     sql,
-                    PreparedStatement.RETURN_GENERATED_KEYS
+                    java.sql.Statement.RETURN_GENERATED_KEYS
             );
 
-            stmt.setInt(
-                    1,
-                    idUsuario
-            );
-
-            stmt.setInt(
-                    2,
-                    idTreinoSelecionado
-            );
-
-            stmt.setString(
-                    3,
-                    nomeTreinoSelecionado
-            );
-
-            stmt.setString(
-                    4,
-                    data
-            );
+            stmt.setInt(1, idUsuario);
+            stmt.setInt(2, idTreinoSelecionado);
+            stmt.setString(3, nomeTreino);
+            stmt.setString(4, data);
 
             stmt.executeUpdate();
 
-            rs = stmt.getGeneratedKeys();
+            ResultSet chave =
+                    stmt.getGeneratedKeys();
 
-            int idRealizado = -1;
+            int idTreinoRealizado = -1;
 
-            if (rs.next()) {
-                idRealizado = rs.getInt(1);
+            if (chave.next()) {
+                idTreinoRealizado =
+                        chave.getInt(1);
             }
 
-            if (idRealizado == -1) {
+            chave.close();
+            stmt.close();
 
-                Toast.makeText(
-                        requireContext(),
-                        "Erro ao criar histórico",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                return;
-            }
+            /*
+             * Salva os exercícios realizados.
+             */
 
             sql =
                     "INSERT INTO treino_realizado_exercicio " +
-                            "(id_treino_realizado, id_exercicio, " +
-                            "nome_exercicio, ordem, series, " +
-                            "repeticoes, carga, volume) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                            "(id_treino_realizado, id_exercicio, ordem, " +
+                            "series, repeticoes, carga, volume) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             stmt = con.prepareStatement(sql);
 
-            for (int i = 0;
-                 i < idsExercicios.size();
+            for (int i = 1;
+                 i < tabelaExercicios.getChildCount();
                  i++) {
 
-                String cargaTexto =
-                        camposCarga.get(i)
-                                .getText()
+                TableRow linha =
+                        (TableRow) tabelaExercicios
+                                .getChildAt(i);
+
+                int idExercicio =
+                        (int) linha.getTag();
+
+                EditText campoCarga =
+                        (EditText) linha.getChildAt(1);
+
+                EditText campoSeries =
+                        (EditText) linha.getChildAt(2);
+
+                EditText campoReps =
+                        (EditText) linha.getChildAt(3);
+
+                String textoCarga =
+                        campoCarga.getText()
                                 .toString()
                                 .trim();
 
-                String seriesTexto =
-                        camposSeries.get(i)
-                                .getText()
+                String textoSeries =
+                        campoSeries.getText()
                                 .toString()
                                 .trim();
 
-                String repsTexto =
-                        camposRepeticoes.get(i)
-                                .getText()
+                String textoReps =
+                        campoReps.getText()
                                 .toString()
                                 .trim();
 
-                if (seriesTexto.isEmpty() ||
-                        repsTexto.isEmpty()) {
+                if (textoCarga.isEmpty() ||
+                        textoSeries.isEmpty() ||
+                        textoReps.isEmpty()) {
 
                     Toast.makeText(
                             requireContext(),
-                            "Preencha séries e repetições",
+                            "Preencha carga, séries e repetições",
                             Toast.LENGTH_SHORT
                     ).show();
 
@@ -463,20 +458,18 @@ public class TreinosFragment extends Fragment {
                 }
 
                 double carga =
-                        cargaTexto.isEmpty()
-                                ? 0
-                                : Double.parseDouble(
-                                cargaTexto
+                        Double.parseDouble(
+                                textoCarga
                         );
 
                 int series =
                         Integer.parseInt(
-                                seriesTexto
+                                textoSeries
                         );
 
                 int repeticoes =
                         Integer.parseInt(
-                                repsTexto
+                                textoReps
                         );
 
                 double volume =
@@ -486,41 +479,36 @@ public class TreinosFragment extends Fragment {
 
                 stmt.setInt(
                         1,
-                        idRealizado
+                        idTreinoRealizado
                 );
 
                 stmt.setInt(
                         2,
-                        idsExercicios.get(i)
+                        idExercicio
                 );
 
-                stmt.setString(
+                stmt.setInt(
                         3,
-                        nomesExercicios.get(i)
+                        i
                 );
 
                 stmt.setInt(
                         4,
-                        i + 1
-                );
-
-                stmt.setInt(
-                        5,
                         series
                 );
 
                 stmt.setInt(
-                        6,
+                        5,
                         repeticoes
                 );
 
                 stmt.setDouble(
-                        7,
+                        6,
                         carga
                 );
 
                 stmt.setDouble(
-                        8,
+                        7,
                         volume
                 );
 
@@ -533,7 +521,17 @@ public class TreinosFragment extends Fragment {
                     Toast.LENGTH_SHORT
             ).show();
 
-            limparTreino();
+            idTreinoSelecionado = -1;
+
+            txtNomeTreino.setText(
+                    "Selecione um treino"
+            );
+
+            tabelaExercicios.removeAllViews();
+
+            adicionarCabecalho();
+
+            listaTreinos.clearChoices();
 
         } catch (Exception e) {
 
@@ -551,29 +549,21 @@ public class TreinosFragment extends Fragment {
         }
     }
 
-    private void limparTreino() {
-
-        idTreinoSelecionado = -1;
-        nomeTreinoSelecionado = "";
-
-        txtNomeTreino.setText(
-                "Nenhum treino selecionado"
-        );
-
-        tabelaExercicios.removeAllViews();
-
-        camposCarga.clear();
-        camposSeries.clear();
-        camposRepeticoes.clear();
-    }
-
     private void fecharConexao() {
 
         try {
 
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (con != null) con.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (stmt != null) {
+                stmt.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
 
         } catch (Exception e) {
 
