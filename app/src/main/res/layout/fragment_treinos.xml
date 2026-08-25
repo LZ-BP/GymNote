@@ -12,28 +12,38 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="TREINOS"
+        android:text="TREINO"
         android:textSize="26sp"
         android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:text="Selecione o treino"
+        android:layout_marginTop="20dp"
+        android:text="Escolha o treino"
         android:textSize="16sp"
         android:textStyle="bold" />
 
-    <Spinner
-        android:id="@+id/spTreino"
+    <ListView
+        android:id="@+id/listaTreinos"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/txtNomeTreino"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:text="Nenhum treino selecionado"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_weight="1">
 
         <HorizontalScrollView
@@ -43,20 +53,17 @@
             <TableLayout
                 android:id="@+id/tabelaExercicios"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:stretchColumns="1,2,3">
-
-            </TableLayout>
+                android:layout_height="wrap_content" />
 
         </HorizontalScrollView>
 
     </ScrollView>
 
     <Button
-        android:id="@+id/btSalvarTreino"
+        android:id="@+id/btFinalizarTreino"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="SALVAR TREINO" />
+        android:layout_marginTop="10dp"
+        android:text="FINALIZAR TREINO" />
 
 </LinearLayout>

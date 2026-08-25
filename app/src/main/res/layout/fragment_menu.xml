@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:gravity="center"
-        android:text="TREINO DE HOJE"
+        android:text="Nenhum treino agendado"
         android:textSize="22sp"
         android:textStyle="bold" />
 
@@ -40,6 +40,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="INICIAR TREINO DE HOJE" />
+
+    <Button
+        android:id="@+id/btTreinos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="TREINOS" />
+
+    <Button
+        android:id="@+id/btCriarTreino"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="CRIAR TREINO" />
 
     <Button
         android:id="@+id/btExercicios"

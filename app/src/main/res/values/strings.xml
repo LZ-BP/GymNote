@@ -13,6 +13,7 @@
     <string name="menu_treinos">Treinos</string>
     <string name="menu_exercicio">Adicionar Exercícios</string>
     <string name="menu_historico">Histórico</string>
+    <string name="menu_criatreino">Criar treino</string>
 
     <string name="menu_reflow">Reflow</string>
     <string name="menu_slideshow">Slideshow</string>

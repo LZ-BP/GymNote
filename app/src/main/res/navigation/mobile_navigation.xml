@@ -23,6 +23,11 @@
         android:label="Treinos"
         tools:layout="@layout/fragment_treinos" />
     <fragment
+        android:id="@+id/nav_criartreino"
+        android:name="com.example.gymnote.ui.menu.CriartreinoFragment"
+        android:label="Criar treinos"
+        tools:layout="@layout/fragment_criartreino" />
+    <fragment
         android:id="@+id/nav_exercicio"
         android:name="com.example.gymnote.ui.menu.ExercicioFragment"
         android:label="Exercício"
