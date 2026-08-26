@@ -6,10 +6,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,34 +19,42 @@ import androidx.fragment.app.Fragment;
 
 import com.example.gymnote.ConexaoMySQL;
 import com.example.gymnote.R;
+import com.example.gymnote.Sessao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class TreinosFragment extends Fragment {
 
-    ListView listaTreinos;
-    TableLayout tabelaExercicios;
-
     TextView txtNomeTreino;
     Button btFinalizarTreino;
+    TableLayout tabelaExercicios;
 
-    ArrayList<String> dadosTreinos = new ArrayList<>();
-    ArrayList<Integer> idsTreinos = new ArrayList<>();
+    ArrayList<Integer> idsExercicios =
+            new ArrayList<>();
 
-    ArrayAdapter<String> adaptadorTreinos;
+    ArrayList<String> nomesExercicios =
+            new ArrayList<>();
+
+    ArrayList<EditText> camposCarga =
+            new ArrayList<>();
+
+    ArrayList<EditText> camposSeries =
+            new ArrayList<>();
+
+    ArrayList<EditText> camposRepeticoes =
+            new ArrayList<>();
 
     Connection con;
     PreparedStatement stmt;
     ResultSet rs;
 
-    int idUsuario = 1;
-    int idTreinoSelecionado = -1;
+    Sessao sessao;
+    int idUsuario;
+
+    int idTreino = -1;
 
     @Nullable
     @Override
@@ -57,32 +63,60 @@ public class TreinosFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
 
-        View V = inflater.inflate(
-                R.layout.fragment_treinos,
-                container,
-                false
-        );
+        View V =
+                inflater.inflate(
+                        R.layout.fragment_treinos,
+                        container,
+                        false
+                );
 
-        listaTreinos = V.findViewById(R.id.listaTreinos);
-        tabelaExercicios = V.findViewById(R.id.tabelaExercicios);
-        txtNomeTreino = V.findViewById(R.id.txtNomeTreino);
-        btFinalizarTreino = V.findViewById(R.id.btFinalizarTreino);
+        sessao =
+                new Sessao(requireContext());
 
-        carregarTreinos();
+        idUsuario =
+                sessao.getIdUsuario();
 
-        listaTreinos.setOnItemClickListener(
-                (parent, view, position, id) -> {
+        txtNomeTreino =
+                V.findViewById(
+                        R.id.txtNomeTreino
+                );
 
-                    idTreinoSelecionado =
-                            idsTreinos.get(position);
+        tabelaExercicios =
+                V.findViewById(
+                        R.id.tabelaExercicios
+                );
 
-                    txtNomeTreino.setText(
-                            dadosTreinos.get(position)
+        btFinalizarTreino =
+                V.findViewById(
+                        R.id.btFinalizarTreino
+                );
+
+        Bundle dados =
+                getArguments();
+
+        if (dados != null) {
+
+            idTreino =
+                    dados.getInt(
+                            "idTreino",
+                            -1
                     );
+        }
 
-                    carregarExerciciosDoTreino();
-                }
-        );
+        if (idTreino == -1) {
+
+            txtNomeTreino.setText(
+                    "Nenhum treino selecionado"
+            );
+
+            btFinalizarTreino.setEnabled(
+                    false
+            );
+
+            return V;
+        }
+
+        carregarTreino();
 
         btFinalizarTreino.setOnClickListener(
                 view -> finalizarTreino()
@@ -91,62 +125,61 @@ public class TreinosFragment extends Fragment {
         return V;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (listaTreinos != null) {
-            carregarTreinos();
-        }
-    }
-
-    private void carregarTreinos() {
-
-        dadosTreinos.clear();
-        idsTreinos.clear();
+    private void carregarTreino() {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
-                    "SELECT id_treino, nome_treino " +
+                    "SELECT nome_treino " +
                             "FROM treino " +
-                            "WHERE id_usuario = ? " +
-                            "ORDER BY nome_treino";
+                            "WHERE id_treino = ? " +
+                            "AND id_usuario = ?";
 
-            stmt = con.prepareStatement(sql);
-            stmt.setInt(1, idUsuario);
+            stmt =
+                    con.prepareStatement(sql);
 
-            rs = stmt.executeQuery();
+            stmt.setInt(
+                    1,
+                    idTreino
+            );
 
-            while (rs.next()) {
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
 
-                idsTreinos.add(
-                        rs.getInt("id_treino")
+            rs =
+                    stmt.executeQuery();
+
+            if (rs.next()) {
+
+                txtNomeTreino.setText(
+                        rs.getString(
+                                "nome_treino"
+                        )
                 );
 
-                dadosTreinos.add(
-                        rs.getString("nome_treino")
+                carregarExercicios();
+
+            } else {
+
+                txtNomeTreino.setText(
+                        "Treino não encontrado"
+                );
+
+                btFinalizarTreino.setEnabled(
+                        false
                 );
             }
-
-            adaptadorTreinos =
-                    new ArrayAdapter<>(
-                            requireContext(),
-                            android.R.layout.simple_list_item_1,
-                            dadosTreinos
-                    );
-
-            listaTreinos.setAdapter(
-                    adaptadorTreinos
-            );
 
         } catch (Exception e) {
 
             Toast.makeText(
                     requireContext(),
-                    "Erro ao carregar treinos",
+                    "Erro ao carregar treino",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -158,19 +191,23 @@ public class TreinosFragment extends Fragment {
         }
     }
 
-    private void carregarExerciciosDoTreino() {
+    private void carregarExercicios() {
 
         tabelaExercicios.removeAllViews();
 
-        adicionarCabecalho();
+        idsExercicios.clear();
+        nomesExercicios.clear();
 
-        if (idTreinoSelecionado == -1) {
-            return;
-        }
+        camposCarga.clear();
+        camposSeries.clear();
+        camposRepeticoes.clear();
+
+        adicionarCabecalho();
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "SELECT e.id_exercicio, e.nome " +
@@ -178,24 +215,61 @@ public class TreinosFragment extends Fragment {
                             "INNER JOIN exercicio e " +
                             "ON e.id_exercicio = te.id_exercicio " +
                             "WHERE te.id_treino = ? " +
+                            "AND e.id_usuario = ? " +
                             "ORDER BY te.ordem";
 
-            stmt = con.prepareStatement(sql);
-            stmt.setInt(1, idTreinoSelecionado);
+            stmt =
+                    con.prepareStatement(sql);
 
-            rs = stmt.executeQuery();
+            stmt.setInt(
+                    1,
+                    idTreino
+            );
 
-            int ordem = 1;
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
+
+            rs =
+                    stmt.executeQuery();
 
             while (rs.next()) {
 
-                adicionarLinha(
-                        rs.getInt("id_exercicio"),
-                        rs.getString("nome"),
-                        ordem
+                int idExercicio =
+                        rs.getInt(
+                                "id_exercicio"
+                        );
+
+                String nome =
+                        rs.getString(
+                                "nome"
+                        );
+
+                idsExercicios.add(
+                        idExercicio
                 );
 
-                ordem++;
+                nomesExercicios.add(
+                        nome
+                );
+
+                adicionarLinha(
+                        nome
+                );
+            }
+
+            if (idsExercicios.isEmpty()) {
+
+                Toast.makeText(
+                        requireContext(),
+                        "Esse treino não possui exercícios",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                btFinalizarTreino.setEnabled(
+                        false
+                );
             }
 
         } catch (Exception e) {
@@ -216,58 +290,105 @@ public class TreinosFragment extends Fragment {
 
     private void adicionarCabecalho() {
 
-        TableRow linha = new TableRow(
-                requireContext()
+        TableRow linha =
+                new TableRow(
+                        requireContext()
+                );
+
+        linha.addView(
+                criarTexto(
+                        "Exercício"
+                )
         );
 
         linha.addView(
-                criarTexto("Exercício")
+                criarTexto(
+                        "Carga"
+                )
         );
 
         linha.addView(
-                criarTexto("Carga")
+                criarTexto(
+                        "Séries"
+                )
         );
 
         linha.addView(
-                criarTexto("Séries")
+                criarTexto(
+                        "Reps"
+                )
         );
 
-        linha.addView(
-                criarTexto("Reps")
+        tabelaExercicios.addView(
+                linha
         );
-
-        tabelaExercicios.addView(linha);
     }
 
     private void adicionarLinha(
-            int idExercicio,
-            String nome,
-            int ordem) {
+            String nome) {
 
-        TableRow linha = new TableRow(
-                requireContext()
-        );
+        TableRow linha =
+                new TableRow(
+                        requireContext()
+                );
 
         TextView exercicio =
                 criarTexto(nome);
 
         EditText carga =
-                criarCampo("kg", true);
+                criarCampo(
+                        "kg",
+                        true
+                );
 
         EditText series =
-                criarCampo("Séries", false);
+                criarCampo(
+                        "Séries",
+                        false
+                );
 
         EditText repeticoes =
-                criarCampo("Reps", false);
+                criarCampo(
+                        "Reps",
+                        false
+                );
 
-        linha.setTag(idExercicio);
+        camposCarga.add(carga);
+        camposSeries.add(series);
+        camposRepeticoes.add(repeticoes);
 
         linha.addView(exercicio);
         linha.addView(carga);
         linha.addView(series);
         linha.addView(repeticoes);
 
-        tabelaExercicios.addView(linha);
+        tabelaExercicios.addView(
+                linha
+        );
+    }
+
+    private TextView criarTexto(
+            String texto) {
+
+        TextView textView =
+                new TextView(
+                        requireContext()
+                );
+
+        textView.setText(texto);
+        textView.setTextSize(16);
+        textView.setPadding(
+                15,
+                15,
+                15,
+                15
+        );
+
+        textView.setGravity(
+                Gravity.CENTER
+        );
+
+        return textView;
     }
 
     private EditText criarCampo(
@@ -275,11 +396,16 @@ public class TreinosFragment extends Fragment {
             boolean decimal) {
 
         EditText campo =
-                new EditText(requireContext());
+                new EditText(
+                        requireContext()
+                );
 
         campo.setHint(hint);
         campo.setTextSize(16);
-        campo.setGravity(Gravity.CENTER);
+
+        campo.setGravity(
+                Gravity.CENTER
+        );
 
         campo.setPadding(
                 10,
@@ -305,39 +431,13 @@ public class TreinosFragment extends Fragment {
         return campo;
     }
 
-    private TextView criarTexto(String texto) {
-
-        TextView textView =
-                new TextView(requireContext());
-
-        textView.setText(texto);
-        textView.setTextSize(16);
-        textView.setGravity(Gravity.CENTER);
-
-        textView.setPadding(
-                15,
-                15,
-                15,
-                15
-        );
-
-        return textView;
-    }
-
     private void finalizarTreino() {
 
-        if (idTreinoSelecionado == -1) {
-
-            Toast.makeText(
-                    requireContext(),
-                    "Selecione um treino primeiro",
-                    Toast.LENGTH_SHORT
-            ).show();
-
+        if (idTreino == -1) {
             return;
         }
 
-        if (tabelaExercicios.getChildCount() <= 1) {
+        if (idsExercicios.isEmpty()) {
 
             Toast.makeText(
                     requireContext(),
@@ -350,132 +450,154 @@ public class TreinosFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
-            String nomeTreino =
-                    txtNomeTreino.getText()
-                            .toString()
-                            .trim();
+            con.setAutoCommit(false);
 
-            String data =
-                    new SimpleDateFormat(
-                            "yyyy-MM-dd",
-                            Locale.getDefault()
-                    ).format(new Date());
+            for (
+                    int i = 0;
+                    i < idsExercicios.size();
+                    i++
+            ) {
 
-            /*
-             * Cria o treino realizado.
-             */
+                String series =
+                        camposSeries.get(i)
+                                .getText()
+                                .toString()
+                                .trim();
+
+                String repeticoes =
+                        camposRepeticoes.get(i)
+                                .getText()
+                                .toString()
+                                .trim();
+
+                if (
+                        series.isEmpty() ||
+                                repeticoes.isEmpty()
+                ) {
+
+                    Toast.makeText(
+                            requireContext(),
+                            "Preencha séries e repetições de todos os exercícios",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    con.rollback();
+                    return;
+                }
+            }
 
             String sql =
                     "INSERT INTO treino_realizado " +
                             "(id_usuario, id_treino, nome_treino, data_realizacao) " +
-                            "VALUES (?, ?, ?, ?)";
+                            "SELECT ?, id_treino, nome_treino, CURDATE() " +
+                            "FROM treino " +
+                            "WHERE id_treino = ? " +
+                            "AND id_usuario = ?";
 
-            stmt = con.prepareStatement(
-                    sql,
-                    java.sql.Statement.RETURN_GENERATED_KEYS
-            );
+            stmt =
+                    con.prepareStatement(
+                            sql,
+                            java.sql.Statement.RETURN_GENERATED_KEYS
+                    );
 
             stmt.setInt(1, idUsuario);
-            stmt.setInt(2, idTreinoSelecionado);
-            stmt.setString(3, nomeTreino);
-            stmt.setString(4, data);
+            stmt.setInt(2, idTreino);
+            stmt.setInt(3, idUsuario);
 
             stmt.executeUpdate();
 
-            ResultSet chave =
+            rs =
                     stmt.getGeneratedKeys();
 
             int idTreinoRealizado = -1;
 
-            if (chave.next()) {
+            if (rs.next()) {
+
                 idTreinoRealizado =
-                        chave.getInt(1);
+                        rs.getInt(1);
             }
 
-            chave.close();
-            stmt.close();
+            if (idTreinoRealizado == -1) {
 
-            /*
-             * Salva os exercícios realizados.
-             */
+                throw new Exception(
+                        "Não foi possível criar o treino realizado"
+                );
+            }
+
+            rs.close();
+            stmt.close();
 
             sql =
                     "INSERT INTO treino_realizado_exercicio " +
-                            "(id_treino_realizado, id_exercicio, ordem, " +
-                            "series, repeticoes, carga, volume) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            "(id_treino_realizado, id_exercicio, nome_exercicio, " +
+                            "ordem, series, repeticoes, carga, volume) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            for (int i = 1;
-                 i < tabelaExercicios.getChildCount();
-                 i++) {
+            for (
+                    int i = 0;
+                    i < idsExercicios.size();
+                    i++
+            ) {
 
-                TableRow linha =
-                        (TableRow) tabelaExercicios
-                                .getChildAt(i);
-
-                int idExercicio =
-                        (int) linha.getTag();
-
-                EditText campoCarga =
-                        (EditText) linha.getChildAt(1);
-
-                EditText campoSeries =
-                        (EditText) linha.getChildAt(2);
-
-                EditText campoReps =
-                        (EditText) linha.getChildAt(3);
-
-                String textoCarga =
-                        campoCarga.getText()
+                String valorCarga =
+                        camposCarga.get(i)
+                                .getText()
                                 .toString()
                                 .trim();
 
-                String textoSeries =
-                        campoSeries.getText()
+                String valorSeries =
+                        camposSeries.get(i)
+                                .getText()
                                 .toString()
                                 .trim();
 
-                String textoReps =
-                        campoReps.getText()
+                String valorRepeticoes =
+                        camposRepeticoes.get(i)
+                                .getText()
                                 .toString()
                                 .trim();
-
-                if (textoCarga.isEmpty() ||
-                        textoSeries.isEmpty() ||
-                        textoReps.isEmpty()) {
-
-                    Toast.makeText(
-                            requireContext(),
-                            "Preencha carga, séries e repetições",
-                            Toast.LENGTH_SHORT
-                    ).show();
-
-                    return;
-                }
 
                 double carga =
-                        Double.parseDouble(
-                                textoCarga
+                        valorCarga.isEmpty()
+                                ? 0
+                                : Double.parseDouble(
+                                valorCarga
                         );
 
                 int series =
                         Integer.parseInt(
-                                textoSeries
+                                valorSeries
                         );
 
                 int repeticoes =
                         Integer.parseInt(
-                                textoReps
+                                valorRepeticoes
                         );
 
                 double volume =
                         carga *
                                 series *
                                 repeticoes;
+
+                TableRow linha =
+                        (TableRow)
+                                tabelaExercicios
+                                        .getChildAt(i + 1);
+
+                TextView textoExercicio =
+                        (TextView)
+                                linha.getChildAt(0);
+
+                String nomeExercicio =
+                        textoExercicio
+                                .getText()
+                                .toString();
 
                 stmt.setInt(
                         1,
@@ -484,36 +606,43 @@ public class TreinosFragment extends Fragment {
 
                 stmt.setInt(
                         2,
-                        idExercicio
+                        idsExercicios.get(i)
                 );
 
-                stmt.setInt(
+                stmt.setString(
                         3,
-                        i
+                        nomeExercicio
                 );
 
                 stmt.setInt(
                         4,
-                        series
+                        i + 1
                 );
 
                 stmt.setInt(
                         5,
+                        series
+                );
+
+                stmt.setInt(
+                        6,
                         repeticoes
                 );
 
                 stmt.setDouble(
-                        6,
+                        7,
                         carga
                 );
 
                 stmt.setDouble(
-                        7,
+                        8,
                         volume
                 );
 
                 stmt.executeUpdate();
             }
+
+            con.commit();
 
             Toast.makeText(
                     requireContext(),
@@ -521,29 +650,53 @@ public class TreinosFragment extends Fragment {
                     Toast.LENGTH_SHORT
             ).show();
 
-            idTreinoSelecionado = -1;
+            idTreino = -1;
 
             txtNomeTreino.setText(
-                    "Selecione um treino"
+                    "Nenhum treino selecionado"
             );
 
             tabelaExercicios.removeAllViews();
 
             adicionarCabecalho();
 
-            listaTreinos.clearChoices();
+            btFinalizarTreino.setEnabled(
+                    false
+            );
 
         } catch (Exception e) {
 
+            try {
+
+                if (con != null) {
+                    con.rollback();
+                }
+
+            } catch (Exception rollbackError) {
+
+                rollbackError.printStackTrace();
+            }
+
             Toast.makeText(
                     requireContext(),
-                    "Erro ao finalizar treino",
-                    Toast.LENGTH_SHORT
+                    "Erro: " + e.getMessage(),
+                    Toast.LENGTH_LONG
             ).show();
 
             e.printStackTrace();
 
         } finally {
+
+            try {
+
+                if (con != null) {
+                    con.setAutoCommit(true);
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
 
             fecharConexao();
         }

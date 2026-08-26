@@ -25,29 +25,30 @@
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/txtTreinoHoje"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:gravity="center"
-        android:text="Nenhum treino agendado"
+        android:text="TREINO DE HOJE"
         android:textSize="22sp"
         android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btVerTreinoHoje"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="INICIAR TREINO DE HOJE" />
-
-    <Button
-        android:id="@+id/btTreinos"
+    <TextView
+        android:id="@+id/txtTreinoHoje"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="TREINOS" />
+        android:gravity="center"
+        android:text="Carregando..."
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/btTreino"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="TREINO" />
     <Button
         android:id="@+id/btCriarTreino"
         android:layout_width="match_parent"

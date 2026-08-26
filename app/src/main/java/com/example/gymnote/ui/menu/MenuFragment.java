@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 
 import com.example.gymnote.ConexaoMySQL;
 import com.example.gymnote.R;
+import com.example.gymnote.Sessao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,24 +29,26 @@ public class MenuFragment extends Fragment {
     TextView txtHoje;
     TextView txtTreinoHoje;
 
-    Button btVerTreinoHoje;
-    Button btTreinos;
+    Button btTreino;
     Button btCriarTreino;
     Button btExercicios;
     Button btHistorico;
-
-    int idUsuario = 1;
-    int idTreinoHoje = -1;
 
     Connection con;
     PreparedStatement stmt;
     ResultSet rs;
 
+    Sessao sessao;
+    int idUsuario;
+
+    int idTreinoHoje = -1;
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         View V = inflater.inflate(
                 R.layout.fragment_menu,
@@ -53,14 +56,20 @@ public class MenuFragment extends Fragment {
                 false
         );
 
-        txtHoje = V.findViewById(R.id.txtHoje);
-        txtTreinoHoje = V.findViewById(R.id.txtTreinoHoje);
+        sessao =
+                new Sessao(requireContext());
 
-        btVerTreinoHoje =
-                V.findViewById(R.id.btVerTreinoHoje);
+        idUsuario =
+                sessao.getIdUsuario();
 
-        btTreinos =
-                V.findViewById(R.id.btTreinos);
+        txtHoje =
+                V.findViewById(R.id.txtHoje);
+
+        txtTreinoHoje =
+                V.findViewById(R.id.txtTreinoHoje);
+
+        btTreino =
+                V.findViewById(R.id.btTreino);
 
         btCriarTreino =
                 V.findViewById(R.id.btCriarTreino);
@@ -71,10 +80,11 @@ public class MenuFragment extends Fragment {
         btHistorico =
                 V.findViewById(R.id.btHistorico);
 
-        String hoje = new SimpleDateFormat(
-                "dd/MM/yyyy",
-                Locale.getDefault()
-        ).format(new Date());
+        String hoje =
+                new SimpleDateFormat(
+                        "dd/MM/yyyy",
+                        Locale.getDefault()
+                ).format(new Date());
 
         txtHoje.setText(
                 "Hoje: " + hoje
@@ -82,7 +92,17 @@ public class MenuFragment extends Fragment {
 
         carregarTreinoHoje();
 
-        btVerTreinoHoje.setOnClickListener(
+        btCriarTreino.setOnClickListener(
+                view -> {
+
+                    Navigation.findNavController(view)
+                            .navigate(
+                                    R.id.nav_criartreino
+                            );
+                }
+        );
+
+        btTreino.setOnClickListener(
                 view -> {
 
                     if (idTreinoHoje == -1) {
@@ -96,7 +116,8 @@ public class MenuFragment extends Fragment {
                         return;
                     }
 
-                    Bundle dados = new Bundle();
+                    Bundle dados =
+                            new Bundle();
 
                     dados.putInt(
                             "idTreino",
@@ -111,24 +132,24 @@ public class MenuFragment extends Fragment {
                 }
         );
 
-        btTreinos.setOnClickListener(
-                view -> Navigation.findNavController(view)
-                        .navigate(R.id.nav_treinos)
-        );
-
-        btCriarTreino.setOnClickListener(
-                view -> Navigation.findNavController(view)
-                        .navigate(R.id.nav_criartreino)
-        );
-
         btExercicios.setOnClickListener(
-                view -> Navigation.findNavController(view)
-                        .navigate(R.id.nav_exercicio)
+                view -> {
+
+                    Navigation.findNavController(view)
+                            .navigate(
+                                    R.id.nav_exercicio
+                            );
+                }
         );
 
         btHistorico.setOnClickListener(
-                view -> Navigation.findNavController(view)
-                        .navigate(R.id.nav_historico)
+                view -> {
+
+                    Navigation.findNavController(view)
+                            .navigate(
+                                    R.id.nav_historico
+                            );
+                }
         );
 
         return V;
@@ -139,47 +160,78 @@ public class MenuFragment extends Fragment {
 
         super.onResume();
 
-        carregarTreinoHoje();
+        if (txtTreinoHoje != null) {
+            carregarTreinoHoje();
+        }
     }
 
     private void carregarTreinoHoje() {
 
         idTreinoHoje = -1;
 
+        String dataHoje =
+                new SimpleDateFormat(
+                        "yyyy-MM-dd",
+                        Locale.getDefault()
+                ).format(new Date());
+
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
-                    "SELECT t.id_treino, t.nome_treino " +
+                    "SELECT ct.id_treino, t.nome_treino " +
                             "FROM calendario_treino ct " +
                             "INNER JOIN treino t " +
                             "ON t.id_treino = ct.id_treino " +
                             "WHERE ct.id_usuario = ? " +
-                            "AND ct.data_treino = CURDATE()";
+                            "AND ct.data_treino = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
             stmt.setInt(
                     1,
                     idUsuario
             );
 
-            rs = stmt.executeQuery();
+            stmt.setString(
+                    2,
+                    dataHoje
+            );
+
+            rs =
+                    stmt.executeQuery();
 
             if (rs.next()) {
 
                 idTreinoHoje =
-                        rs.getInt("id_treino");
+                        rs.getInt(
+                                "id_treino"
+                        );
+
+                String nomeTreino =
+                        rs.getString(
+                                "nome_treino"
+                        );
 
                 txtTreinoHoje.setText(
-                        rs.getString("nome_treino")
+                        nomeTreino
+                );
+
+                btTreino.setText(
+                        "INICIAR TREINO"
                 );
 
             } else {
 
                 txtTreinoHoje.setText(
                         "Nenhum treino agendado"
+                );
+
+                btTreino.setText(
+                        "TREINO"
                 );
             }
 
@@ -188,6 +240,12 @@ public class MenuFragment extends Fragment {
             txtTreinoHoje.setText(
                     "Erro ao carregar treino"
             );
+
+            Toast.makeText(
+                    requireContext(),
+                    "Erro ao consultar treino de hoje",
+                    Toast.LENGTH_SHORT
+            ).show();
 
             e.printStackTrace();
 

@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.gymnote.ConexaoMySQL;
 import com.example.gymnote.R;
+import com.example.gymnote.Sessao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,14 +31,19 @@ import java.util.Locale;
 public class CalendarioFragment extends Fragment {
 
     CalendarView calendario;
+
     TextView txtDataSelecionada;
     TextView txtTreinoSelecionado;
 
     Spinner spinnerTreinos;
+
     Button btSalvarTreino;
 
-    ArrayList<String> dadosTreinos = new ArrayList<>();
-    ArrayList<Integer> idsTreinos = new ArrayList<>();
+    ArrayList<String> dadosTreinos =
+            new ArrayList<>();
+
+    ArrayList<Integer> idsTreinos =
+            new ArrayList<>();
 
     ArrayAdapter<String> adaptadorTreinos;
 
@@ -45,7 +51,9 @@ public class CalendarioFragment extends Fragment {
     PreparedStatement stmt;
     ResultSet rs;
 
-    int idUsuario = 1;
+    Sessao sessao;
+    int idUsuario;
+
     String dataSelecionada;
 
     @Nullable
@@ -55,22 +63,49 @@ public class CalendarioFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
 
-        View V = inflater.inflate(
-                R.layout.fragment_calendario,
-                container,
-                false
-        );
+        View V =
+                inflater.inflate(
+                        R.layout.fragment_calendario,
+                        container,
+                        false
+                );
 
-        calendario = V.findViewById(R.id.calendario);
-        txtDataSelecionada = V.findViewById(R.id.txtDataSelecionada);
-        txtTreinoSelecionado = V.findViewById(R.id.txtTreinoSelecionado);
-        spinnerTreinos = V.findViewById(R.id.spinnerTreinos);
-        btSalvarTreino = V.findViewById(R.id.btSalvarTreino);
+        sessao =
+                new Sessao(requireContext());
 
-        dataSelecionada = new SimpleDateFormat(
-                "yyyy-MM-dd",
-                Locale.getDefault()
-        ).format(new Date());
+        idUsuario =
+                sessao.getIdUsuario();
+
+        calendario =
+                V.findViewById(
+                        R.id.calendario
+                );
+
+        txtDataSelecionada =
+                V.findViewById(
+                        R.id.txtDataSelecionada
+                );
+
+        txtTreinoSelecionado =
+                V.findViewById(
+                        R.id.txtTreinoSelecionado
+                );
+
+        spinnerTreinos =
+                V.findViewById(
+                        R.id.spinnerTreinos
+                );
+
+        btSalvarTreino =
+                V.findViewById(
+                        R.id.btSalvarTreino
+                );
+
+        dataSelecionada =
+                new SimpleDateFormat(
+                        "yyyy-MM-dd",
+                        Locale.getDefault()
+                ).format(new Date());
 
         atualizarDataTexto();
         carregarTreinos();
@@ -78,13 +113,14 @@ public class CalendarioFragment extends Fragment {
         calendario.setOnDateChangeListener(
                 (view, year, month, dayOfMonth) -> {
 
-                    dataSelecionada = String.format(
-                            Locale.getDefault(),
-                            "%04d-%02d-%02d",
-                            year,
-                            month + 1,
-                            dayOfMonth
-                    );
+                    dataSelecionada =
+                            String.format(
+                                    Locale.getDefault(),
+                                    "%04d-%02d-%02d",
+                                    year,
+                                    month + 1,
+                                    dayOfMonth
+                            );
 
                     atualizarDataTexto();
                     carregarTreinoDoDia();
@@ -103,9 +139,12 @@ public class CalendarioFragment extends Fragment {
 
                         if (!dadosTreinos.isEmpty()) {
 
-                            txtTreinoSelecionado.setText(
-                                    dadosTreinos.get(position)
-                            );
+                            txtTreinoSelecionado
+                                    .setText(
+                                            dadosTreinos.get(
+                                                    position
+                                            )
+                                    );
                         }
                     }
 
@@ -139,7 +178,10 @@ public class CalendarioFragment extends Fragment {
                             Locale.getDefault()
                     );
 
-            Date data = banco.parse(dataSelecionada);
+            Date data =
+                    banco.parse(
+                            dataSelecionada
+                    );
 
             txtDataSelecionada.setText(
                     tela.format(data)
@@ -158,7 +200,8 @@ public class CalendarioFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "SELECT id_treino, nome_treino " +
@@ -166,19 +209,29 @@ public class CalendarioFragment extends Fragment {
                             "WHERE id_usuario = ? " +
                             "ORDER BY nome_treino";
 
-            stmt = con.prepareStatement(sql);
-            stmt.setInt(1, idUsuario);
+            stmt =
+                    con.prepareStatement(sql);
 
-            rs = stmt.executeQuery();
+            stmt.setInt(
+                    1,
+                    idUsuario
+            );
+
+            rs =
+                    stmt.executeQuery();
 
             while (rs.next()) {
 
                 idsTreinos.add(
-                        rs.getInt("id_treino")
+                        rs.getInt(
+                                "id_treino"
+                        )
                 );
 
                 dadosTreinos.add(
-                        rs.getString("nome_treino")
+                        rs.getString(
+                                "nome_treino"
+                        )
                 );
             }
 
@@ -228,7 +281,8 @@ public class CalendarioFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "SELECT ct.id_treino, t.nome_treino " +
@@ -236,34 +290,60 @@ public class CalendarioFragment extends Fragment {
                             "INNER JOIN treino t " +
                             "ON t.id_treino = ct.id_treino " +
                             "WHERE ct.id_usuario = ? " +
+                            "AND t.id_usuario = ? " +
                             "AND ct.data_treino = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setInt(1, idUsuario);
-            stmt.setString(2, dataSelecionada);
+            stmt.setInt(
+                    1,
+                    idUsuario
+            );
 
-            rs = stmt.executeQuery();
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
+
+            stmt.setString(
+                    3,
+                    dataSelecionada
+            );
+
+            rs =
+                    stmt.executeQuery();
 
             if (rs.next()) {
 
                 int idTreino =
-                        rs.getInt("id_treino");
+                        rs.getInt(
+                                "id_treino"
+                        );
 
                 String nomeTreino =
-                        rs.getString("nome_treino");
+                        rs.getString(
+                                "nome_treino"
+                        );
 
                 txtTreinoSelecionado.setText(
                         nomeTreino
                 );
 
-                for (int i = 0;
-                     i < idsTreinos.size();
-                     i++) {
+                for (
+                        int i = 0;
+                        i < idsTreinos.size();
+                        i++
+                ) {
 
-                    if (idsTreinos.get(i) == idTreino) {
+                    if (
+                            idsTreinos.get(i)
+                                    == idTreino
+                    ) {
 
-                        spinnerTreinos.setSelection(i);
+                        spinnerTreinos
+                                .setSelection(i);
+
                         break;
                     }
                 }
@@ -305,7 +385,8 @@ public class CalendarioFragment extends Fragment {
         }
 
         int posicao =
-                spinnerTreinos.getSelectedItemPosition();
+                spinnerTreinos
+                        .getSelectedItemPosition();
 
         if (posicao < 0) {
             return;
@@ -316,7 +397,8 @@ public class CalendarioFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "INSERT INTO calendario_treino " +
@@ -325,11 +407,23 @@ public class CalendarioFragment extends Fragment {
                             "ON DUPLICATE KEY UPDATE " +
                             "id_treino = VALUES(id_treino)";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setInt(1, idUsuario);
-            stmt.setInt(2, idTreino);
-            stmt.setString(3, dataSelecionada);
+            stmt.setInt(
+                    1,
+                    idUsuario
+            );
+
+            stmt.setInt(
+                    2,
+                    idTreino
+            );
+
+            stmt.setString(
+                    3,
+                    dataSelecionada
+            );
 
             stmt.executeUpdate();
 

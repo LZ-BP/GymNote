@@ -20,22 +20,16 @@
         android:id="@+id/txtNomeTreino"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
-        android:text="Selecione um treino"
-        android:textSize="20sp"
+        android:text="Carregando..."
+        android:textSize="22sp"
         android:textStyle="bold" />
-
-    <ListView
-        android:id="@+id/listaTreinos"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginTop="10dp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="20dp"
         android:text="Exercícios"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -43,7 +37,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1">
 
         <HorizontalScrollView
@@ -63,7 +57,7 @@
         android:id="@+id/btFinalizarTreino"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:text="FINALIZAR TREINO" />
 
 </LinearLayout>

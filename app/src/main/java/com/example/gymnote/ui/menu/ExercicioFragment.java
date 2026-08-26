@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.gymnote.ConexaoMySQL;
 import com.example.gymnote.R;
+import com.example.gymnote.Sessao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,38 +28,67 @@ public class ExercicioFragment extends Fragment {
 
     EditText edtNomeExercicio;
     EditText edtMusculo;
+
     Button btSalvarExercicio;
+
     ListView listaExercicios;
 
-    ArrayList<String> dadosLista = new ArrayList<>();
-    ArrayList<Integer> idsLista = new ArrayList<>();
+    ArrayList<String> dadosLista =
+            new ArrayList<>();
+
+    ArrayList<Integer> idsLista =
+            new ArrayList<>();
+
     ArrayAdapter<String> adaptador;
 
-    Connection con = null;
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
-    String sql;
+    Connection con;
+    PreparedStatement stmt;
+    ResultSet rs;
 
     int idExercicio = -1;
 
-    int idUsuario = 1;
+    Sessao sessao;
+    int idUsuario;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
-        View V = inflater.inflate(
-                R.layout.fragment_exercicio,
-                container,
-                false
-        );
+        View V =
+                inflater.inflate(
+                        R.layout.fragment_exercicio,
+                        container,
+                        false
+                );
 
-        edtNomeExercicio = V.findViewById(R.id.edtNomeExercicio);
-        edtMusculo = V.findViewById(R.id.edtMusculo);
-        btSalvarExercicio = V.findViewById(R.id.btSalvarExercicio);
-        listaExercicios = V.findViewById(R.id.listaExercicios);
+        sessao =
+                new Sessao(requireContext());
+
+        idUsuario =
+                sessao.getIdUsuario();
+
+        edtNomeExercicio =
+                V.findViewById(
+                        R.id.edtNomeExercicio
+                );
+
+        edtMusculo =
+                V.findViewById(
+                        R.id.edtMusculo
+                );
+
+        btSalvarExercicio =
+                V.findViewById(
+                        R.id.btSalvarExercicio
+                );
+
+        listaExercicios =
+                V.findViewById(
+                        R.id.listaExercicios
+                );
 
         carregarLista();
 
@@ -81,45 +111,71 @@ public class ExercicioFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
-            sql = "SELECT id_exercicio, nome, grupo_muscular " +
-                    "FROM exercicio " +
-                    "WHERE id_usuario = ? " +
-                    "ORDER BY nome";
+            String sql =
+                    "SELECT id_exercicio, nome, grupo_muscular " +
+                            "FROM exercicio " +
+                            "WHERE id_usuario = ? " +
+                            "ORDER BY nome";
 
-            stmt = con.prepareStatement(sql);
-            stmt.setInt(1, idUsuario);
+            stmt =
+                    con.prepareStatement(sql);
 
-            rs = stmt.executeQuery();
+            stmt.setInt(
+                    1,
+                    idUsuario
+            );
+
+            rs =
+                    stmt.executeQuery();
 
             while (rs.next()) {
 
-                int id = rs.getInt("id_exercicio");
-                String nome = rs.getString("nome");
-                String musculo = rs.getString("grupo_muscular");
+                int id =
+                        rs.getInt(
+                                "id_exercicio"
+                        );
+
+                String nome =
+                        rs.getString(
+                                "nome"
+                        );
+
+                String musculo =
+                        rs.getString(
+                                "grupo_muscular"
+                        );
 
                 if (musculo == null) {
                     musculo = "";
                 }
 
-                String texto = nome;
+                String texto =
+                        nome;
 
                 if (!musculo.isEmpty()) {
-                    texto += " - " + musculo;
+
+                    texto +=
+                            " - " +
+                                    musculo;
                 }
 
                 idsLista.add(id);
                 dadosLista.add(texto);
             }
 
-            adaptador = new ArrayAdapter<>(
-                    requireContext(),
-                    android.R.layout.simple_list_item_1,
-                    dadosLista
-            );
+            adaptador =
+                    new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_list_item_1,
+                            dadosLista
+                    );
 
-            listaExercicios.setAdapter(adaptador);
+            listaExercicios.setAdapter(
+                    adaptador
+            );
 
         } catch (Exception e) {
 
@@ -130,6 +186,7 @@ public class ExercicioFragment extends Fragment {
             ).show();
 
             e.printStackTrace();
+
         } finally {
 
             fecharConexao();
@@ -138,15 +195,17 @@ public class ExercicioFragment extends Fragment {
 
     private void salvarExercicio() {
 
-        String nome = edtNomeExercicio
-                .getText()
-                .toString()
-                .trim();
+        String nome =
+                edtNomeExercicio
+                        .getText()
+                        .toString()
+                        .trim();
 
-        String musculo = edtMusculo
-                .getText()
-                .toString()
-                .trim();
+        String musculo =
+                edtMusculo
+                        .getText()
+                        .toString()
+                        .trim();
 
         if (nome.isEmpty()) {
 
@@ -155,24 +214,39 @@ public class ExercicioFragment extends Fragment {
             );
 
             edtNomeExercicio.requestFocus();
+
             return;
         }
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             if (idExercicio == -1) {
 
-                sql = "INSERT INTO exercicio " +
-                        "(id_usuario, nome, grupo_muscular) " +
-                        "VALUES (?, ?, ?)";
+                String sql =
+                        "INSERT INTO exercicio " +
+                                "(id_usuario, nome, grupo_muscular) " +
+                                "VALUES (?, ?, ?)";
 
-                stmt = con.prepareStatement(sql);
+                stmt =
+                        con.prepareStatement(sql);
 
-                stmt.setInt(1, idUsuario);
-                stmt.setString(2, nome);
-                stmt.setString(3, musculo);
+                stmt.setInt(
+                        1,
+                        idUsuario
+                );
+
+                stmt.setString(
+                        2,
+                        nome
+                );
+
+                stmt.setString(
+                        3,
+                        musculo
+                );
 
                 stmt.executeUpdate();
 
@@ -184,17 +258,34 @@ public class ExercicioFragment extends Fragment {
 
             } else {
 
-                sql = "UPDATE exercicio " +
-                        "SET nome = ?, grupo_muscular = ? " +
-                        "WHERE id_exercicio = ? " +
-                        "AND id_usuario = ?";
+                String sql =
+                        "UPDATE exercicio " +
+                                "SET nome = ?, grupo_muscular = ? " +
+                                "WHERE id_exercicio = ? " +
+                                "AND id_usuario = ?";
 
-                stmt = con.prepareStatement(sql);
+                stmt =
+                        con.prepareStatement(sql);
 
-                stmt.setString(1, nome);
-                stmt.setString(2, musculo);
-                stmt.setInt(3, idExercicio);
-                stmt.setInt(4, idUsuario);
+                stmt.setString(
+                        1,
+                        nome
+                );
+
+                stmt.setString(
+                        2,
+                        musculo
+                );
+
+                stmt.setInt(
+                        3,
+                        idExercicio
+                );
+
+                stmt.setInt(
+                        4,
+                        idUsuario
+                );
 
                 stmt.executeUpdate();
 
@@ -205,6 +296,7 @@ public class ExercicioFragment extends Fragment {
                 ).show();
 
                 idExercicio = -1;
+
                 btSalvarExercicio.setText(
                         "SALVAR EXERCÍCIO"
                 );
@@ -229,57 +321,89 @@ public class ExercicioFragment extends Fragment {
         }
     }
 
-    private void abrirOpcoes(int position) {
+    private void abrirOpcoes(
+            int position) {
 
         String[] opcoes = {
                 "Alterar",
                 "Excluir"
         };
 
-        new AlertDialog.Builder(requireContext())
+        new AlertDialog.Builder(
+                requireContext()
+        )
                 .setTitle("Exercício")
-                .setItems(opcoes, (dialog, which) -> {
+                .setItems(
+                        opcoes,
+                        (dialog, which) -> {
 
-                    if (which == 0) {
-                        alterarExercicio(position);
-                    } else {
-                        excluirExercicio(position);
-                    }
-                })
+                            if (which == 0) {
+
+                                alterarExercicio(
+                                        position
+                                );
+
+                            } else {
+
+                                excluirExercicio(
+                                        position
+                                );
+                            }
+                        }
+                )
                 .show();
     }
 
-    private void alterarExercicio(int position) {
+    private void alterarExercicio(
+            int position) {
 
-        int id = idsLista.get(position);
+        int id =
+                idsLista.get(position);
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
-            sql = "SELECT nome, grupo_muscular " +
-                    "FROM exercicio " +
-                    "WHERE id_exercicio = ? " +
-                    "AND id_usuario = ?";
+            String sql =
+                    "SELECT nome, grupo_muscular " +
+                            "FROM exercicio " +
+                            "WHERE id_exercicio = ? " +
+                            "AND id_usuario = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setInt(1, id);
-            stmt.setInt(2, idUsuario);
+            stmt.setInt(
+                    1,
+                    id
+            );
 
-            rs = stmt.executeQuery();
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
+
+            rs =
+                    stmt.executeQuery();
 
             if (rs.next()) {
 
                 edtNomeExercicio.setText(
-                        rs.getString("nome")
+                        rs.getString(
+                                "nome"
+                        )
                 );
 
                 String musculo =
-                        rs.getString("grupo_muscular");
+                        rs.getString(
+                                "grupo_muscular"
+                        );
 
                 edtMusculo.setText(
-                        musculo == null ? "" : musculo
+                        musculo == null
+                                ? ""
+                                : musculo
                 );
 
                 idExercicio = id;
@@ -305,12 +429,18 @@ public class ExercicioFragment extends Fragment {
         }
     }
 
-    private void excluirExercicio(int position) {
+    private void excluirExercicio(
+            int position) {
 
-        int id = idsLista.get(position);
+        int id =
+                idsLista.get(position);
 
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Excluir exercício")
+        new AlertDialog.Builder(
+                requireContext()
+        )
+                .setTitle(
+                        "Excluir exercício"
+                )
                 .setMessage(
                         "Deseja realmente excluir este exercício?"
                 )
@@ -326,20 +456,31 @@ public class ExercicioFragment extends Fragment {
                 .show();
     }
 
-    private void executarExclusao(int id) {
+    private void executarExclusao(
+            int id) {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
-            sql = "DELETE FROM exercicio " +
-                    "WHERE id_exercicio = ? " +
-                    "AND id_usuario = ?";
+            String sql =
+                    "DELETE FROM exercicio " +
+                            "WHERE id_exercicio = ? " +
+                            "AND id_usuario = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setInt(1, id);
-            stmt.setInt(2, idUsuario);
+            stmt.setInt(
+                    1,
+                    id
+            );
+
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
 
             stmt.executeUpdate();
 
@@ -371,6 +512,7 @@ public class ExercicioFragment extends Fragment {
 
         edtNomeExercicio.setText("");
         edtMusculo.setText("");
+
         idExercicio = -1;
 
         btSalvarExercicio.setText(
@@ -395,6 +537,7 @@ public class ExercicioFragment extends Fragment {
             }
 
         } catch (Exception e) {
+
             e.printStackTrace();
         }
 

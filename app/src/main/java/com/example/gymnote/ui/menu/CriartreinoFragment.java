@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.gymnote.ConexaoMySQL;
 import com.example.gymnote.R;
+import com.example.gymnote.Sessao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -53,7 +54,9 @@ public class CriartreinoFragment extends Fragment {
     PreparedStatement stmt;
     ResultSet rs;
 
-    int idUsuario = 1;
+    Sessao sessao;
+    int idUsuario;
+
     int idTreinoSelecionado = -1;
 
     @Nullable
@@ -63,32 +66,53 @@ public class CriartreinoFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
 
-        View V = inflater.inflate(
-                R.layout.fragment_criartreino,
-                container,
-                false
-        );
+        View V =
+                inflater.inflate(
+                        R.layout.fragment_criartreino,
+                        container,
+                        false
+                );
+
+        sessao =
+                new Sessao(requireContext());
+
+        idUsuario =
+                sessao.getIdUsuario();
 
         edtNomeTreino =
-                V.findViewById(R.id.edtNomeTreino);
+                V.findViewById(
+                        R.id.edtNomeTreino
+                );
 
         btSalvarTreino =
-                V.findViewById(R.id.btSalvarTreino);
+                V.findViewById(
+                        R.id.btSalvarTreino
+                );
 
         btAlterarTreino =
-                V.findViewById(R.id.btAlterarTreino);
+                V.findViewById(
+                        R.id.btAlterarTreino
+                );
 
         btExcluirTreino =
-                V.findViewById(R.id.btExcluirTreino);
+                V.findViewById(
+                        R.id.btExcluirTreino
+                );
 
         btSalvarExercicios =
-                V.findViewById(R.id.btSalvarExercicios);
+                V.findViewById(
+                        R.id.btSalvarExercicios
+                );
 
         listaTreinos =
-                V.findViewById(R.id.listaTreinos);
+                V.findViewById(
+                        R.id.listaTreinos
+                );
 
         listaExercicios =
-                V.findViewById(R.id.listaExercicios);
+                V.findViewById(
+                        R.id.listaExercicios
+                );
 
         carregarTreinos();
         carregarExercicios();
@@ -133,7 +157,8 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "SELECT id_treino, nome_treino " +
@@ -141,23 +166,29 @@ public class CriartreinoFragment extends Fragment {
                             "WHERE id_usuario = ? " +
                             "ORDER BY nome_treino";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
             stmt.setInt(
                     1,
                     idUsuario
             );
 
-            rs = stmt.executeQuery();
+            rs =
+                    stmt.executeQuery();
 
             while (rs.next()) {
 
                 idsTreinos.add(
-                        rs.getInt("id_treino")
+                        rs.getInt(
+                                "id_treino"
+                        )
                 );
 
                 dadosTreinos.add(
-                        rs.getString("nome_treino")
+                        rs.getString(
+                                "nome_treino"
+                        )
                 );
             }
 
@@ -195,7 +226,8 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "SELECT id_exercicio, nome " +
@@ -203,23 +235,29 @@ public class CriartreinoFragment extends Fragment {
                             "WHERE id_usuario = ? " +
                             "ORDER BY nome";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
             stmt.setInt(
                     1,
                     idUsuario
             );
 
-            rs = stmt.executeQuery();
+            rs =
+                    stmt.executeQuery();
 
             while (rs.next()) {
 
                 idsExercicios.add(
-                        rs.getInt("id_exercicio")
+                        rs.getInt(
+                                "id_exercicio"
+                        )
                 );
 
                 dadosExercicios.add(
-                        rs.getString("nome")
+                        rs.getString(
+                                "nome"
+                        )
                 );
             }
 
@@ -253,7 +291,8 @@ public class CriartreinoFragment extends Fragment {
     private void criarTreino() {
 
         String nome =
-                edtNomeTreino.getText()
+                edtNomeTreino
+                        .getText()
                         .toString()
                         .trim();
 
@@ -268,17 +307,26 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "INSERT INTO treino " +
                             "(id_usuario, nome_treino) " +
                             "VALUES (?, ?)";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setInt(1, idUsuario);
-            stmt.setString(2, nome);
+            stmt.setInt(
+                    1,
+                    idUsuario
+            );
+
+            stmt.setString(
+                    2,
+                    nome
+            );
 
             stmt.executeUpdate();
 
@@ -321,20 +369,24 @@ public class CriartreinoFragment extends Fragment {
         }
 
         String nome =
-                edtNomeTreino.getText()
+                edtNomeTreino
+                        .getText()
                         .toString()
                         .trim();
 
         if (nome.isEmpty()) {
+
             edtNomeTreino.setError(
                     "Digite o nome do treino"
             );
+
             return;
         }
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "UPDATE treino " +
@@ -342,11 +394,23 @@ public class CriartreinoFragment extends Fragment {
                             "WHERE id_treino = ? " +
                             "AND id_usuario = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setString(1, nome);
-            stmt.setInt(2, idTreinoSelecionado);
-            stmt.setInt(3, idUsuario);
+            stmt.setString(
+                    1,
+                    nome
+            );
+
+            stmt.setInt(
+                    2,
+                    idTreinoSelecionado
+            );
+
+            stmt.setInt(
+                    3,
+                    idUsuario
+            );
 
             stmt.executeUpdate();
 
@@ -389,17 +453,26 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "DELETE FROM treino " +
                             "WHERE id_treino = ? " +
                             "AND id_usuario = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
-            stmt.setInt(1, idTreinoSelecionado);
-            stmt.setInt(2, idUsuario);
+            stmt.setInt(
+                    1,
+                    idTreinoSelecionado
+            );
+
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
 
             stmt.executeUpdate();
 
@@ -443,13 +516,15 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "DELETE FROM treino_exercicio " +
                             "WHERE id_treino = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
             stmt.setInt(
                     1,
@@ -463,15 +538,21 @@ public class CriartreinoFragment extends Fragment {
                             "(id_treino, id_exercicio, ordem) " +
                             "VALUES (?, ?, ?)";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
             int ordem = 1;
 
-            for (int i = 0;
-                 i < listaExercicios.getCount();
-                 i++) {
+            for (
+                    int i = 0;
+                    i < listaExercicios.getCount();
+                    i++
+            ) {
 
-                if (listaExercicios.isItemChecked(i)) {
+                if (
+                        listaExercicios
+                                .isItemChecked(i)
+                ) {
 
                     stmt.setInt(
                             1,
@@ -522,37 +603,48 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            con = ConexaoMySQL.conectar();
+            con =
+                    ConexaoMySQL.conectar();
 
             String sql =
                     "SELECT id_exercicio " +
                             "FROM treino_exercicio " +
                             "WHERE id_treino = ?";
 
-            stmt = con.prepareStatement(sql);
+            stmt =
+                    con.prepareStatement(sql);
 
             stmt.setInt(
                     1,
                     idTreinoSelecionado
             );
 
-            rs = stmt.executeQuery();
+            rs =
+                    stmt.executeQuery();
 
             while (rs.next()) {
 
                 int idExercicio =
-                        rs.getInt("id_exercicio");
-
-                for (int i = 0;
-                     i < idsExercicios.size();
-                     i++) {
-
-                    if (idsExercicios.get(i) == idExercicio) {
-
-                        listaExercicios.setItemChecked(
-                                i,
-                                true
+                        rs.getInt(
+                                "id_exercicio"
                         );
+
+                for (
+                        int i = 0;
+                        i < idsExercicios.size();
+                        i++
+                ) {
+
+                    if (
+                            idsExercicios.get(i)
+                                    == idExercicio
+                    ) {
+
+                        listaExercicios
+                                .setItemChecked(
+                                        i,
+                                        true
+                                );
 
                         break;
                     }
@@ -588,9 +680,17 @@ public class CriartreinoFragment extends Fragment {
 
         try {
 
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (con != null) con.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (stmt != null) {
+                stmt.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
 
         } catch (Exception e) {
 
