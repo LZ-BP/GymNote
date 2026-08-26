@@ -1,10 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
+
+    <!-- GYM-NOTE -->
+
+    <color name="background">#131313</color>
+    <color name="surface">#1A1A1A</color>
+    <color name="surface_dark">#121212</color>
+    <color name="surface_light">#262626</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="text_primary">#E4E2E1</color>
+    <color name="text_secondary">#C4C7C7</color>
+
+    <color name="primary">#CAF300</color>
+    <color name="primary_dark">#B0D500</color>
+    <color name="on_primary">#171E00</color>
+
+    <color name="outline">#444748</color>
+    <color name="outline_light">#8E9192</color>
+
+    <color name="error">#FFB4AB</color>
+    <color name="error_dark">#93000A</color>
+
+
+    <!-- Cores antigas do template Android -->
+    <!-- Mantidas para evitar erros de compilação -->
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
+
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
 </resources>
