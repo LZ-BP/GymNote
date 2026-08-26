@@ -8,9 +8,9 @@ import java.sql.SQLException;
 
 public class ConexaoMySQL {
 
-    private static final String URL = "jdbc:mysql://10.15.107.36:3307/gymnote";
-    private static final String USUARIO = "senac"; //super usuario do banco de dados
-    private static final String SENHA = "123";
+    private static final String URL = "jdbc:mysql://mysql-33d642ae-luiz-6f6f.j.aivencloud.com:22572/gymnote";
+    private static final String USUARIO = "avnadmin"; //super usuario do banco de dados
+    private static final String SENHA = "AVNS_FzSt4Cyl9dhH9B7PrpQ";
 
     public static Connection conectar() {
         try {
