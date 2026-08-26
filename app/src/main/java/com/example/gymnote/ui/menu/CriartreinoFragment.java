@@ -1,5 +1,6 @@
 package com.example.gymnote.ui.menu;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,9 +31,9 @@ public class CriartreinoFragment extends Fragment {
     Button btSalvarTreino;
     Button btAlterarTreino;
     Button btExcluirTreino;
+    Button btTreinosCadastrados;
     Button btSalvarExercicios;
 
-    ListView listaTreinos;
     ListView listaExercicios;
 
     ArrayList<String> dadosTreinos =
@@ -47,7 +48,6 @@ public class CriartreinoFragment extends Fragment {
     ArrayList<Integer> idsExercicios =
             new ArrayList<>();
 
-    ArrayAdapter<String> adaptadorTreinos;
     ArrayAdapter<String> adaptadorExercicios;
 
     Connection con;
@@ -99,14 +99,14 @@ public class CriartreinoFragment extends Fragment {
                         R.id.btExcluirTreino
                 );
 
+        btTreinosCadastrados =
+                V.findViewById(
+                        R.id.btTreinosCadastrados
+                );
+
         btSalvarExercicios =
                 V.findViewById(
                         R.id.btSalvarExercicios
-                );
-
-        listaTreinos =
-                V.findViewById(
-                        R.id.listaTreinos
                 );
 
         listaExercicios =
@@ -114,11 +114,23 @@ public class CriartreinoFragment extends Fragment {
                         R.id.listaExercicios
                 );
 
+        btAlterarTreino.setVisibility(
+                View.GONE
+        );
+
+        btExcluirTreino.setVisibility(
+                View.GONE
+        );
+
         carregarTreinos();
         carregarExercicios();
 
         btSalvarTreino.setOnClickListener(
                 view -> criarTreino()
+        );
+
+        btTreinosCadastrados.setOnClickListener(
+                view -> mostrarTreinos()
         );
 
         btAlterarTreino.setOnClickListener(
@@ -131,20 +143,6 @@ public class CriartreinoFragment extends Fragment {
 
         btSalvarExercicios.setOnClickListener(
                 view -> salvarExercicios()
-        );
-
-        listaTreinos.setOnItemClickListener(
-                (parent, view, position, id) -> {
-
-                    idTreinoSelecionado =
-                            idsTreinos.get(position);
-
-                    edtNomeTreino.setText(
-                            dadosTreinos.get(position)
-                    );
-
-                    marcarExercicios();
-                }
         );
 
         return V;
@@ -192,17 +190,6 @@ public class CriartreinoFragment extends Fragment {
                 );
             }
 
-            adaptadorTreinos =
-                    new ArrayAdapter<>(
-                            requireContext(),
-                            android.R.layout.simple_list_item_1,
-                            dadosTreinos
-                    );
-
-            listaTreinos.setAdapter(
-                    adaptadorTreinos
-            );
-
         } catch (Exception e) {
 
             Toast.makeText(
@@ -217,6 +204,74 @@ public class CriartreinoFragment extends Fragment {
 
             fecharConexao();
         }
+    }
+
+    private void mostrarTreinos() {
+
+        carregarTreinos();
+
+        if (dadosTreinos.isEmpty()) {
+
+            new AlertDialog.Builder(
+                    requireContext()
+            )
+                    .setTitle(
+                            "Treinos cadastrados"
+                    )
+                    .setMessage(
+                            "Nenhum treino cadastrado."
+                    )
+                    .setPositiveButton(
+                            "FECHAR",
+                            null
+                    )
+                    .show();
+
+            return;
+        }
+
+        String[] treinos =
+                dadosTreinos.toArray(
+                        new String[0]
+                );
+
+        new AlertDialog.Builder(
+                requireContext()
+        )
+                .setTitle(
+                        "Treinos cadastrados"
+                )
+                .setItems(
+                        treinos,
+                        (dialog, which) -> {
+
+                            idTreinoSelecionado =
+                                    idsTreinos.get(
+                                            which
+                                    );
+
+                            edtNomeTreino.setText(
+                                    dadosTreinos.get(
+                                            which
+                                    )
+                            );
+
+                            btAlterarTreino.setVisibility(
+                                    View.VISIBLE
+                            );
+
+                            btExcluirTreino.setVisibility(
+                                    View.VISIBLE
+                            );
+
+                            marcarExercicios();
+                        }
+                )
+                .setNegativeButton(
+                        "FECHAR",
+                        null
+                )
+                .show();
     }
 
     private void carregarExercicios() {
@@ -264,7 +319,8 @@ public class CriartreinoFragment extends Fragment {
             adaptadorExercicios =
                     new ArrayAdapter<>(
                             requireContext(),
-                            android.R.layout.simple_list_item_multiple_choice,
+                            android.R.layout
+                                    .simple_list_item_multiple_choice,
                             dadosExercicios
                     );
 
@@ -450,6 +506,29 @@ public class CriartreinoFragment extends Fragment {
 
             return;
         }
+
+        new AlertDialog.Builder(
+                requireContext()
+        )
+                .setTitle(
+                        "Excluir treino?"
+                )
+                .setMessage(
+                        "Deseja realmente excluir este treino?"
+                )
+                .setNegativeButton(
+                        "CANCELAR",
+                        null
+                )
+                .setPositiveButton(
+                        "EXCLUIR",
+                        (dialog, which) ->
+                                executarExclusaoTreino()
+                )
+                .show();
+    }
+
+    private void executarExclusaoTreino() {
 
         try {
 
@@ -674,6 +753,14 @@ public class CriartreinoFragment extends Fragment {
         edtNomeTreino.setText("");
 
         listaExercicios.clearChoices();
+
+        btAlterarTreino.setVisibility(
+                View.GONE
+        );
+
+        btExcluirTreino.setVisibility(
+                View.GONE
+        );
     }
 
     private void fecharConexao() {
